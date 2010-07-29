@@ -54,12 +54,17 @@ public class Data {
 			int numQuestions = readQuestions(fileBase, i);
 			quizes[i] = new Quiz(indexDBF.readString(i, "PRODID"), indexDBF.readString(i, "TITLE"),
 					numQuestions);
-			// applies errata
+			// applies erratas
 			if (quizes[i].getProdId().equals("075708f")) {
 				boolean[] a = questions.get(new Question(i, 72)).getCorrectAnswer();
 				System.arraycopy(
 						new boolean[] {false, false, true, true, false, true},
 						0, a, 0, a.length);
+			}
+			if (quizes[i].getProdId().equals("075708b")) {
+				String[] answers = questions.get(new Question(i, 67)).getAnswers();
+				answers[6] = answers[6].replaceAll("cp\\.jar", "mp.jar");
+				answers[7] = answers[7].replaceAll("cp\\.jar", "mp.jar");
 			}
 		}
 	}

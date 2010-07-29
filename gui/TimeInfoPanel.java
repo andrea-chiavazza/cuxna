@@ -37,11 +37,12 @@ public class TimeInfoPanel extends JPanel {
 	private JButton pauseButton = new JButton();
 	private String dateFormatString = "HH:mm:ss";
 	private SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormatString);
-	private SpinnerDateModel dateModel;
+	private SpinnerDateModel totalModel;
 
 	TimeInfoPanel() {
 		super(new GridBagLayout());
-		dateModel = new SpinnerDateModel(makeDate(3, 0, 0), makeDate(0, 0, 1), makeDate(23, 59, 59), Calendar.SECOND);
+		totalModel = new SpinnerDateModel(
+				makeDate(3, 0, 0), makeDate(0, 0, 1), makeDate(23, 59, 59), Calendar.SECOND);
 		timer = new Timer(1000, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -64,7 +65,7 @@ public class TimeInfoPanel extends JPanel {
 				}
 			}
 		});
-		dateModel.addChangeListener(new ChangeListener() {
+		totalModel.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				updateRemaining(false);
@@ -77,9 +78,9 @@ public class TimeInfoPanel extends JPanel {
 		c.anchor = GridBagConstraints.WEST;
 		this.add(new JLabel("Total:"), c);
 		c.gridx = 1;
-		JSpinner dateSpinner = new JSpinner(dateModel);
-		dateSpinner.setEditor(new JSpinner.DateEditor(dateSpinner, dateFormatString));
-		this.add(dateSpinner, c);
+		JSpinner totalSpinner = new JSpinner(totalModel);
+		totalSpinner.setEditor(new JSpinner.DateEditor(totalSpinner, dateFormatString));
+		this.add(totalSpinner, c);
 		c.gridx = 0;
 		c.gridy = 1;
 		this.add(new JLabel("Elapsed:"), c);
@@ -110,34 +111,24 @@ public class TimeInfoPanel extends JPanel {
 	private Date dateAsDifference(Date d) {
 		return new Date(d.getTime() - 3600000);
 	}
-
+	
 	private void updateRemaining(boolean checkEnd) {
-		long diff = dateModel.getDate().getTime() - elapsed.getTimeInMillis();
+		String label = "";
+		long diff = totalModel.getDate().getTime() - elapsed.getTimeInMillis();
 		if (diff >= 0) {
 			remaining.setTimeInMillis(diff);
 			if (checkEnd && diff == 0) {
 				JOptionPane.showMessageDialog(this, "Time is over");
 			}
 		} else {
-			remaining.setTimeInMillis(0);
+			label = "-";
+			// if time limit has passed show difference
+			remaining.setTimeInMillis(-diff);
 		}
-		showRemainingTime();
+		label += simpleDateFormat.format(dateAsDifference(remaining.getTime()));
+		remainingLabel.setText(label);
 	}
-
-	private static Date makeDate(int hour, int minute, int second) {
-		Calendar c = Calendar.getInstance();
-		c.clear();
-		c.setTimeInMillis(0);
-		c.set(Calendar.SECOND, second);
-		c.set(Calendar.MINUTE, minute);
-		c.set(Calendar.HOUR_OF_DAY, hour);
-		return c.getTime();
-	}
-
-	private void showRemainingTime() {
-		remainingLabel.setText(simpleDateFormat.format(dateAsDifference(remaining.getTime())));
-	}
-
+	
 	private void showElapsedTime() {
 		elapsedLabel.setText(simpleDateFormat.format(elapsed.getTime()));
 	}
@@ -149,15 +140,25 @@ public class TimeInfoPanel extends JPanel {
 	}
 
 	void reset() {
-		remaining.setTime(dateModel.getDate());
-		showRemainingTime();
+		stop();
 		elapsed.setTime(makeDate(0, 0, 0));
 		showElapsedTime();
-		stop();
+		updateRemaining(false);
 	}
 
 	void start() {
 		timer.start();
 		pauseButton.setEnabled(true);
 	}
+
+	private static Date makeDate(int hour, int minute, int second) {
+		Calendar c = Calendar.getInstance();
+//		c.clear();
+		c.setTimeInMillis(0);
+		c.set(Calendar.SECOND, second);
+		c.set(Calendar.MINUTE, minute);
+		c.set(Calendar.HOUR_OF_DAY, hour);
+		return c.getTime();
+	}
 }
+

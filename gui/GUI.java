@@ -88,7 +88,7 @@ public class GUI extends JFrame {
 	private JButton promptPathButton = new JButton("Load");
 	private SpinnerNumberModel fontSpinnerModel = new SpinnerNumberModel(14, 10, 30, 1);
 
-	private static String PREFERENCE = "preferredFontSize";
+	private static final String PREFERENCE = "preferredFontSize";
 
 	/**
 	 * Prompts the user for a directory path.
@@ -146,10 +146,7 @@ public class GUI extends JFrame {
 	// event handlers
 	private GUI() {
 		loadData();
-		int fontSize = Preferences.userNodeForPackage(GUI.class).getInt(PREFERENCE, 0);
-		if (fontSize == 0) {
-			fontSize = 14;
-		}
+		int fontSize = Preferences.userNodeForPackage(GUI.class).getInt(PREFERENCE, 14);
 		fontSpinnerModel.setValue(fontSize);
 		questionPanel = new QuestionPanel(fontSize);
 		answerPanel = new AnswerPanel(fontSize);
@@ -300,9 +297,7 @@ public class GUI extends JFrame {
 				questionInfoPanel.showResult(showResultButton.isSelected());
 				// updates the visibility of the result for all questions
 				for (Question question : userData.keySet()) {
-					if (userData.containsKey(question)) {
-						showState(question);
-					}
+					showState(question);
 				}
 			}
 		});
@@ -324,6 +319,7 @@ public class GUI extends JFrame {
 				ta.setWrapStyleWord(true);
 				ta.setColumns(40);
 				ta.setRows(20);
+				showState(currentQuestion.getValue());
 				JOptionPane.showMessageDialog(GUI.this, new JScrollPane(ta), "Solution",
 						JOptionPane.INFORMATION_MESSAGE);
 			}
@@ -457,6 +453,18 @@ public class GUI extends JFrame {
 		eastPanel.setLayout(layout);
 		JLabel fontSpinnerLabel = new JLabel("Font size");
 		JSpinner fontSpinner = new JSpinner(fontSpinnerModel);
+		JButton aboutButton = new JButton("About");
+		aboutButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(GUI.this,
+						"cuxna - http://code.google.com/p/cuxna/\n" +
+						"© 2010 Andrea Chiavazza\n" +
+						"Licensed under GNU GPL version 3\n" +
+						"http://www.gnu.org/licenses/gpl.html"
+						);
+			}
+		});
 		fontSpinner.setMaximumSize(fontSpinner.getPreferredSize());
 		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
 				.addComponent(timeInfoPanel,
@@ -474,10 +482,13 @@ public class GUI extends JFrame {
 				.addGroup(layout.createSequentialGroup()
 						.addComponent(resetButton)
 						.addComponent(promptPathButton)
+						.addComponent(aboutButton)
 				)
 				.addComponent(showResultButton)
-				.addComponent(showHintButton)
-				.addComponent(showSolutionButton)
+				.addGroup(layout.createSequentialGroup()
+						.addComponent(showHintButton)
+						.addComponent(showSolutionButton)
+				)
 				.addComponent(markCheckBox)
 				.addGroup(layout.createSequentialGroup()
 						.addComponent(prevButton)
@@ -500,10 +511,13 @@ public class GUI extends JFrame {
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
 						.addComponent(resetButton)
 						.addComponent(promptPathButton)
+						.addComponent(aboutButton)
 				)
 				.addComponent(showResultButton)
-				.addComponent(showHintButton)
-				.addComponent(showSolutionButton)
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+						.addComponent(showHintButton)
+						.addComponent(showSolutionButton)
+				)
 				.addComponent(markCheckBox)
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
 								.addComponent(prevButton)

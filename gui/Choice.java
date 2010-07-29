@@ -12,6 +12,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -37,13 +38,16 @@ public class Choice extends JCheckBox {
 	Choice(String text, int newchoiceNumber, int fontSize) {
 		super(new Character((char) ('A' + newchoiceNumber)).toString());
 		// answers can be selected by typing their letters with no modifier
-		this.registerKeyboardAction(new AbstractAction() {
+		ActionListener action = new AbstractAction() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Choice.this.setSelected(!Choice.this.isSelected());
 			}
-		}, KeyStroke.getKeyStroke(KeyEvent.VK_A + newchoiceNumber, 0),
-		JComponent.WHEN_IN_FOCUSED_WINDOW);
+		}; 
+		this.registerKeyboardAction(action, KeyStroke.getKeyStroke(KeyEvent.VK_A + newchoiceNumber, 0),
+				JComponent.WHEN_IN_FOCUSED_WINDOW);
+		this.registerKeyboardAction(action, KeyStroke.getKeyStroke(KeyEvent.VK_1 + newchoiceNumber, 0),
+				JComponent.WHEN_IN_FOCUSED_WINDOW);
 		choiceNumber = newchoiceNumber;
 		// create answer check-box
 		setAlignmentY(Component.TOP_ALIGNMENT);
